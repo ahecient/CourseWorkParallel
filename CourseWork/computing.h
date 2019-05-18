@@ -7,7 +7,7 @@
 #include <omp.h>
 class computing{
 public:
-	computing() : length(1.0f), x_points_count(30), t_points_count(2000), a(1.0), A(2), B(0.2), C(0.2),
+	computing() : length(1.0f), x_points_count(30), t_points_count(2000), a(1.0), A(2), B(0.32), C(0.0001),
 
 		step_x(length / (x_points_count)), step_t(length / (t_points_count)),
 		error((step_t) / (step_x * step_x)), r(a * error) {}
