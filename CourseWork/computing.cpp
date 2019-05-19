@@ -13,12 +13,12 @@ void computing::fill_vec(std::vector<std::vector<long double>> &vec){
 	}
 }
 
-long double computing::precision_computing(const long double x, const long double t, const long double a, const long double A, const long double B, const long double C){
-	return	(pow((a * t + A), 3/4) * pow(((x + B) * (C * x + B * C + 1)), -3/2));
+long double computing::precision_computing(const long double x, const long double t, const long double b, const long double A, const long double B){
+	return	(exp(b * t) * pow((A * x + B), -1));
 }
 
-long double computing::approximate_computing(const long double w, const long double wleft, const long double wright, const long double r){
-	return (w - pow(w, (-4/3)) * r * (pow((wright - wleft), 2) * (1 / (3 * w)) - (wleft - 2 * w + wright)));
+long double computing::approximate_computing(const long double w, const long double wleft, const long double wright, const long double r, const long a, const long b){
+	return (w + a * r * pow(w, -2)*((wleft - 2 * w + wright) - pow((wright - wleft), 2)/(2*w)) + r * b * w);
 }
 
 void computing::preparation(){
@@ -34,17 +34,17 @@ void computing::preparation(){
 	fill_vec(precision_serial);
 
 	for (int i = 0; i < x_points_count + 1; ++i){
-		approximate_parallel[i][0] = precision_computing(i * step_x, 0, a, A, B, C);
-		approximate_serial[i][0] = precision_computing(i * step_x, 0, a, A, B, C);
+		approximate_parallel[i][0] = precision_computing(i * step_x, 0, b, A, B);
+		approximate_serial[i][0] = precision_computing(i * step_x, 0, b, A, B);
 
 	}
 
 	for (int j = 1; j < t_points_count; ++j){
-		approximate_parallel[0][j] = precision_computing(0, j * step_t, a, A, B, C);
-		approximate_parallel[x_points_count][j] = precision_computing(x_points_count * step_x, j * step_t, a, A, B, C);
+		approximate_parallel[0][j] = precision_computing(0, j * step_t, b, A, B);
+		approximate_parallel[x_points_count][j] = precision_computing(x_points_count * step_x, j * step_t, b, A, B);
 
-		approximate_serial[0][j] = precision_computing(0, j * step_t, a, A, B, C);
-		approximate_serial[x_points_count][j] = precision_computing(x_points_count * step_x, j * step_t, a, A, B, C);
+		approximate_serial[0][j] = precision_computing(0, j * step_t, b, A, B);
+		approximate_serial[x_points_count][j] = precision_computing(x_points_count * step_x, j * step_t, b, A, B);
 	}
 }
 
@@ -55,8 +55,8 @@ void computing::work(const bool flag, std::vector<std::vector<long double>> &vec
 	for (int j = 1; j < t_points_count; ++j){
 #pragma omp for
 		for (int i = 1; i < x_points_count; ++i){
-			vec_approximate[i][j] = approximate_computing(vec_approximate[i][j - 1], vec_approximate[i - 1][j - 1], vec_approximate[i + 1][j - 1], r);
-			vec_precision[i][j] = precision_computing(i * step_x, j * step_t, a, A, B, C);
+			vec_approximate[i][j] = approximate_computing(vec_approximate[i][j - 1], vec_approximate[i - 1][j - 1], vec_approximate[i + 1][j - 1], r, a, b);
+			vec_precision[i][j] = precision_computing(i * step_x, j * step_t, b, A, B);
 		}
 	}
 	threads_num = omp_get_num_threads();
