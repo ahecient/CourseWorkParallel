@@ -17,8 +17,8 @@ long double computing::precision_computing(const long double x, const long doubl
 	return	(exp(b * t) * pow((A * x + B), -1));
 }
 
-long double computing::approximate_computing(const long double w, const long double wleft, const long double wright, const long double r, const long a, const long b){
-	return (w + a * r * pow(w, -2)*((wleft - 2 * w + wright) - pow((wright - wleft), 2)/(2*w)) + r * b * w);
+long double computing::approximate_computing(const long double w, const long double wleft, const long double wright, const long double r, const long double step_t, const long a, const long b){
+	return (w + a * r * pow(w, -2)*((wleft - 2 * w + wright) - pow((wright - wleft), 2)/(2*w)) + step_t * b * w);
 }
 
 void computing::preparation(){
@@ -55,7 +55,7 @@ void computing::work(const bool flag, std::vector<std::vector<long double>> &vec
 	for (int j = 1; j < t_points_count; ++j){
 #pragma omp for
 		for (int i = 1; i < x_points_count; ++i){
-			vec_approximate[i][j] = approximate_computing(vec_approximate[i][j - 1], vec_approximate[i - 1][j - 1], vec_approximate[i + 1][j - 1], r, a, b);
+			vec_approximate[i][j] = approximate_computing(vec_approximate[i][j - 1], vec_approximate[i - 1][j - 1], vec_approximate[i + 1][j - 1], r, step_t, a, b);
 			vec_precision[i][j] = precision_computing(i * step_x, j * step_t, b, A, B);
 		}
 	}
